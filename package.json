@@ -1,0 +1,40 @@
+{
+   "name": "@corekit/notifier",
+   "version": "0.0.1",
+   "description": "Lightweight browser notification utility with permission handling and deduplication",
+   "main": "dist/index.js",
+   "module": "dist/index.mjs",
+   "types": "dist/index.d.ts",
+   "exports": {
+      ".": {
+         "import": "./dist/index.mjs",
+         "require": "./dist/index.js",
+         "types": "./dist/index.d.ts"
+      }
+   },
+   "files": [
+      "dist"
+   ],
+   "scripts": {
+      "build": "tsup",
+      "dev": "tsup --watch",
+      "clean": "rm -rf dist",
+      "prepublishOnly": "npm run clean && npm run build"
+   },
+   "keywords": [
+      "push",
+      "notifications",
+      "browser",
+      "permission",
+      "corekit"
+   ],
+   "author": "Your Name",
+   "license": "MIT",
+   "publishConfig": {
+      "access": "public"
+   },
+   "devDependencies": {
+      "tsup": "^8.5.0",
+      "typescript": "^5.9.2"
+   }
+}
