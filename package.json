@@ -1,15 +1,15 @@
 {
-   "name": "@corekit/notifier",
+   "name": "@devkit-labs/notifier",
    "version": "0.0.1",
-   "description": "Lightweight browser notification utility with permission handling and deduplication",
+   "description": "Lightweight browser notification utility with permission handling, clean API, fallbacks, and deduplication out of the box",
    "main": "dist/index.js",
    "module": "dist/index.mjs",
    "types": "dist/index.d.ts",
    "exports": {
       ".": {
+         "types": "./dist/index.d.ts",
          "import": "./dist/index.mjs",
-         "require": "./dist/index.js",
-         "types": "./dist/index.d.ts"
+         "require": "./dist/index.js"
       }
    },
    "files": [
