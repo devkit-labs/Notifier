@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
    entry: ["src/index.ts"],
-   format: ["cjs", "esm"],
+   format: ["cjs", "esm", "iife"],
    dts: true,
    splitting: false,
    sourcemap: true,
@@ -10,4 +10,5 @@ export default defineConfig({
    minify: false,
    target: "es2020",
    outDir: "dist",
+   globalName: "NotifierLib",
 });
