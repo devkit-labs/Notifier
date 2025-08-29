@@ -95,7 +95,7 @@ notify.message("Meeting reminder", {
 **Always initialize the notifier only once in your application's entry point** (e.g., `main.js`, `index.js`, `app.js`, or close to your root component).
 
 ```typescript
-// ✅ Good: Initialize once in your main entry file
+// Initialize once in your main entry file
 // main.js or index.js
 import { notifier } from "@devkit-labs/notifier";
 
@@ -111,7 +111,7 @@ notify.success("Your task is complete");
 ```
 
 ```typescript
-// ❌ Bad: Multiple initializations will overwrite each other
+// Multiple initializations will overwrite each other
 // file1.js
 notifier.init({ alertSound: "/sound1.mp3" });
 
@@ -218,7 +218,7 @@ notify.message("Meeting Reminder", {
 
 ### NotificationOptions
 
-All notification methods accept the same options object, most which are same as accepted by native Notification api:
+All notification methods accept the same options object, most which are same as accepted by native Notification api except `showOnSourceTab`:
 
 ```typescript
 interface NotificationOptions {

@@ -2,52 +2,12 @@
  * Browser notification utility with automatic permission handling, de-duplication, unique tags, error handling and fallbacks
  */
 
-// Configuration types
-export interface NotifierIcons {
-   success?: string;
-   error?: string;
-   info?: string;
-   warning?: string;
-}
-
-export interface NotifierConfig {
-   useAlertAsFallback?: boolean; // true by default
-   alertSound?: string; // path to custom alert sound
-   icons?: NotifierIcons;
-}
-
-export interface NotificationOptions {
-   badge?: string;
-   body?: string;
-   data?: any;
-   dir?: NotificationDirection;
-   image?: string;
-   lang?: string;
-   onclick?: ((this: Notification, ev: Event) => any) | null;
-   onclose?: ((this: Notification, ev: Event) => any) | null;
-   onerror?: ((this: Notification, ev: Event) => any) | null;
-   onshow?: ((this: Notification, ev: Event) => any) | null;
-   renotify?: boolean;
-   requireInteraction?: boolean;
-   showOnSourceTab?: boolean; // Whether to show notification when user is on the current tab (default: false)
-   silent?: boolean;
-   timestamp?: number;
-   title?: string;
-   vibrate?: VibratePattern;
-}
-
-// Permission states
-type PermissionState = "default" | "granted" | "denied";
-
-// Default icons (SVG data URIs)
-const DEFAULT_ICONS: Required<NotifierIcons> = {
-   success:
-      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="green"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
-   error: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',
-   info: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="blue"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
-   warning:
-      'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="orange"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>',
-};
+import type {
+   NotificationOptions,
+   NotifierConfig,
+   PermissionState,
+} from "./types";
+import { DEFAULT_ICONS } from "./constants";
 
 // Main class for internal state management
 class NotificationManager {
@@ -161,7 +121,7 @@ class NotificationManager {
                new SpeechSynthesisUtterance("")
             );
          } catch (fallbackError) {
-            console.warn("Beep sound fallback also failed:", fallbackError);
+            console.warn("Beep sound fallback also failed", fallbackError);
          }
       }
    }
@@ -179,7 +139,7 @@ class NotificationManager {
 
       // Create alert message
       const message = options.body ? `${title}\n\n${options.body}` : title;
-      alert(`🔔 Notification\n\n${message}`);
+      alert(`Notification\n\n${message}`);
    }
 
    private async ensurePermission(): Promise<PermissionState> {
@@ -418,6 +378,3 @@ export const getPermissionStatus = (): PermissionState => {
 export const isNotificationSupported = () => {
    return notificationManager.isSupported();
 };
-
-// Export the NotificationManager class for advanced usage
-export { NotificationManager };
