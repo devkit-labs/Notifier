@@ -25,8 +25,7 @@
       "push",
       "notifications",
       "browser",
-      "permission",
-      "corekit"
+      "permission"
    ],
    "author": "Your Name",
    "license": "MIT",

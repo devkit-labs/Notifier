@@ -1,4 +1,6 @@
-# @devkit-labs/notifier
+# @devkit-labs/notifier - Beta
+
+> ⚠️ **Beta Release**: This package is currently in beta testing. While fully functional, we're gathering feedback and may make minor API changes before the stable 1.0 release. Please report any issues!
 
 A lightweight, framework-agnostic browser notification utility with automatic permission handling, typed notification methods, de-duplication and smart fallbacks.
 
