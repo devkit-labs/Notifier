@@ -9,6 +9,7 @@ export interface NotifierIcons {
 export interface NotifierConfig {
    useAlertAsFallback?: boolean; // true by default
    alertSound?: string; // path to custom alert sound
+   showOnSourceTab?: boolean; // Whether to show notification when user is on the current tab (default: false)
    icons?: NotifierIcons;
 }
 
@@ -25,7 +26,6 @@ export interface NotificationOptions {
    onshow?: ((this: Notification, ev: Event) => any) | null;
    renotify?: boolean;
    requireInteraction?: boolean;
-   showOnSourceTab?: boolean; // Whether to show notification when user is on the current tab (default: false)
    silent?: boolean;
    timestamp?: number;
    title?: string;

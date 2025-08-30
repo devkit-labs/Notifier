@@ -21,6 +21,7 @@ class NotificationManager {
       this.config = {
          useAlertAsFallback: true,
          alertSound: "", // will use default web audio API sound
+         showOnSourceTab: false, // default: don't show when user is on current tab
          icons: { ...DEFAULT_ICONS },
       };
    }
@@ -30,6 +31,7 @@ class NotificationManager {
          this.config = {
             useAlertAsFallback: config.useAlertAsFallback ?? true,
             alertSound: config.alertSound ?? "",
+            showOnSourceTab: config.showOnSourceTab ?? false,
             icons: {
                ...DEFAULT_ICONS,
                ...config.icons,
@@ -139,7 +141,7 @@ class NotificationManager {
 
       // Create alert message
       const message = options.body ? `${title}\n\n${options.body}` : title;
-      alert(`Notification\n\n${message}`);
+      alert(`${message}`);
    }
 
    private async ensurePermission(): Promise<PermissionState> {
@@ -186,11 +188,8 @@ class NotificationManager {
       }
 
       try {
-         // Check if we should show notification on current tab (default: false)
-         const showOnSourceTab =
-            options.showOnSourceTab !== undefined
-               ? options.showOnSourceTab
-               : false;
+         // Check if we should show notification on current tab (from config)
+         const showOnSourceTab = this.config.showOnSourceTab;
 
          // If user is on current tab and showOnSourceTab is false, don't show notification
          if (!showOnSourceTab && this.isTabVisible()) {

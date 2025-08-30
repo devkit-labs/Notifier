@@ -4,6 +4,13 @@
 
 A lightweight, framework-agnostic browser notification utility with automatic permission handling, typed notification methods, de-duplication and smart fallbacks.
 
+## Use Case
+- **To notify user about a time taking server/client only task, i.e Image Generation, Video Generation**
+- **Long-running file uploads or downloads, where the user might leave the tab until completion**
+- **Background data processing, such as report generation or analytics exports**
+- **Remote API calls that may take several seconds or minutes to complete**
+- **Any workflow where the user starts a process and may switch tabs, and you want to notify them or bring their attention back when the task completes or fails**
+
 ## Features
 
 -  **Typed Notification Methods** - Pre-configured methods for success, error, info, warning, and general messages
@@ -64,6 +71,7 @@ import {
 const notifierConfig = {
    useAlertAsFallback: true, // true by default
    alertSound: "/alert-sound.mp3",
+   showOnSourceTab : false // false by default
    icons: {
       success: "/success-icon.png",
       error: "/error-icon.png",
@@ -131,9 +139,10 @@ Initialize the notifier with optional configuration. This should be called once 
 
 ```typescript
 interface NotifierConfig {
-   useAlertAsFallback?: boolean; // Show alert when notifications blocked (default: true)
+   useAlertAsFallback?: boolean; // (default: true) Whether to show alert when in source tab when notifications are blocked/denied 
    alertSound?: string; // Custom alert sound URL (optional)
-   icons?: {
+   showOnSourceTab?: boolean; // (default : false) Whether to show the notifications when user is on source tab, recommended way would be to handle it using application UI(toast, modal etc)
+   icons?: { // icons path for various type of notifications, if not provided uses default icons for each
       success?: string;
       error?: string;
       info?: string;
@@ -220,7 +229,7 @@ notify.message("Meeting Reminder", {
 
 ### NotificationOptions
 
-All notification methods accept the same options object, most which are same as accepted by native Notification api except `showOnSourceTab`:
+All notification methods accept the same options object, most which are same as accepted by native Notification api:
 
 ```typescript
 interface NotificationOptions {
@@ -236,7 +245,6 @@ interface NotificationOptions {
    onshow?: (event: Event) => void; // Show handler
    renotify?: boolean; // Whether to replace previous notifications
    requireInteraction?: boolean; // Keep notification visible until user interacts
-   showOnSourceTab?: boolean; // Whether to show when user is on source tab (from where notification was triggered, In case you want to handle it using your application UI, default: true)
    silent?: boolean; // Whether notification should be silent
    timestamp?: number; // Custom timestamp
    title?: string; // Alternative title (use parameter instead)
@@ -365,7 +373,7 @@ notify.info("Silent Update", {
 4. **Provide meaningful content** - Use clear titles and descriptive body text
 5. **Handle clicks appropriately** - Focus your app window or navigate to relevant content when notifications are clicked
 6. **Respect user preferences** - Check permission status and handle denied permissions gracefully
-7. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app
+7. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app, In such case should show the notification using your Appliction UI
 8. **Test fallback behavior** - Ensure your app works well even when notifications are blocked
 
 ## TypeScript
@@ -390,7 +398,6 @@ const config: NotifierConfig = {
 
 const options: NotificationOptions = {
    requireInteraction: true,
-   showOnSourceTab: false,
 };
 
 notify.success("Typed!", options);
