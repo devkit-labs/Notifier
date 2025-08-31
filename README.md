@@ -5,23 +5,23 @@
 A lightweight, framework-agnostic browser notification utility with automatic permission handling, typed notification methods, de-duplication and smart fallbacks.
 
 ## Use Case
-- **To notify user about a time taking server/client only task, i.e Image Generation, Video Generation**
-- **Long-running file uploads or downloads, where the user might leave the tab until completion**
-- **Background data processing, such as report generation or analytics exports**
-- **Remote API calls that may take several seconds or minutes to complete**
-- **Any workflow where the user starts a process and may switch tabs, and you want to notify them or bring their attention back when the task completes or fails**
+
+-  **To notify the user about a time-consuming server or client-side task, such as image generation/editing or video generation/editing**
+-  **Long-running file uploads or downloads, where the user might leave the tab until completion**
+-  **Polling operations that require several minutes to finish**
+-  **Any workflow where the user starts a process and may switch tabs, and you want to notify them or bring back their attention when the task completes or fails**
 
 ## Features
 
 -  **Typed Notification Methods** - Pre-configured methods for success, error, info, warning, and general messages
 -  **Simple Configuration** - Configure once with `notifier.init()`, use everywhere with `notify.*`
--  **Automatic Permission Handling** - Requests notification permission automatically when initialized
+-  **Automatic Permission Handling** - Requests notification permission automatically when initialized, handles permission rejection by showing an alert with a configurable message
 -  **Framework Agnostic** - Works with any JavaScript framework or vanilla JS
 -  **Full Notification API Support** - Supports all native Notification API options
 -  **Deduplication** - By default only shows notifications when user is on other tabs, can be changed
 -  **Smart Tag Management** - Automatically generates unique tags to prevent notification collisions
 -  **Auto Favicon Detection** - Uses the page's favicon as notification icon when none provided
--  **Smart Fallbacks** - Shows alert with beep sound when notifications are blocked
+-  **Smart Fallbacks** - Shows alert with beep sound when notifications are blocked, with original notification message
 -  **TypeScript Support** - Fully typed with comprehensive interfaces
 -  **Lightweight** - Minimal dependencies and small bundle size
 -  **Browser Compatibility** - Works across all modern browsers
@@ -67,11 +67,13 @@ import {
    isNotificationSupported,
 } from "@devkit-labs/notifier";
 
-// Configure the notifier with custom icons and settings
+// Configure the notifier with optional custom icons and settings, 
+// Note : All fields are optional, Notifier comes with default icons and settings
 const notifierConfig = {
-   useAlertAsFallback: true, // true by default
+   useAlertAsFallback: true, // true by default 
    alertSound: "/alert-sound.mp3",
    showOnSourceTab : false // false by default
+   permissionDeniedMessage : "Please allow notifications permissions to get important updates" // default message : "Please allow notifications permissions for best experience"
    icons: {
       success: "/success-icon.png",
       error: "/error-icon.png",
@@ -139,10 +141,11 @@ Initialize the notifier with optional configuration. This should be called once 
 
 ```typescript
 interface NotifierConfig {
-   useAlertAsFallback?: boolean; // (default: true) Whether to show alert when in source tab when notifications are blocked/denied 
+   useAlertAsFallback?: boolean; // (default: true) Whether to show alert when in source tab when notifications are blocked/denied
    alertSound?: string; // Custom alert sound URL (optional)
    showOnSourceTab?: boolean; // (default : false) Whether to show the notifications when user is on source tab, recommended way would be to handle it using application UI(toast, modal etc)
-   icons?: { // icons path for various type of notifications, if not provided uses default icons for each
+   icons?: {
+      // icons path for various type of notifications, if not provided uses default icons for each
       success?: string;
       error?: string;
       info?: string;
@@ -229,7 +232,7 @@ notify.message("Meeting Reminder", {
 
 ### NotificationOptions
 
-All notification methods accept the same options object, most which are same as accepted by native Notification api:
+All notification methods accept the same options object, which are same as accepted by native Notification api:
 
 ```typescript
 interface NotificationOptions {
@@ -373,7 +376,7 @@ notify.info("Silent Update", {
 4. **Provide meaningful content** - Use clear titles and descriptive body text
 5. **Handle clicks appropriately** - Focus your app window or navigate to relevant content when notifications are clicked
 6. **Respect user preferences** - Check permission status and handle denied permissions gracefully
-7. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app, In such case should show the notification using your Appliction UI
+7. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app, In such case you should show the notification using your Appliction UI
 8. **Test fallback behavior** - Ensure your app works well even when notifications are blocked
 
 ## TypeScript
@@ -409,4 +412,4 @@ MIT
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions! If you'd like to help improve this package, please submit a pull request via our [GitHub repository](https://github.com/devkit-labs/Notifier).

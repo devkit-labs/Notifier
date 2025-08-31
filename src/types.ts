@@ -10,6 +10,7 @@ export interface NotifierConfig {
    useAlertAsFallback?: boolean; // true by default
    alertSound?: string; // path to custom alert sound
    showOnSourceTab?: boolean; // Whether to show notification when user is on the current tab (default: false)
+   permissionDeniedMessage?: string; // Message to show when permission is denied (default: "Please allow notifications permissions for best experience")
    icons?: NotifierIcons;
 }
 
@@ -34,3 +35,5 @@ export interface NotificationOptions {
 
 // Permission states
 export type PermissionState = "default" | "granted" | "denied";
+
+export type NotificationType = "success" | "error" | "info" | "warning" | "message";

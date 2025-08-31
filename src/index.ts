@@ -6,8 +6,13 @@ import type {
    NotificationOptions,
    NotifierConfig,
    PermissionState,
+   NotificationType,
 } from "./types";
-import { DEFAULT_ICONS } from "./constants";
+import {
+   DEFAULT_ICONS,
+   DEFAULT_PERMISSION_DENIED_MESSAGE,
+   FALLBACK_ALERT_ICONS,
+} from "./constants";
 
 // Main class for internal state management
 class NotificationManager {
@@ -15,6 +20,7 @@ class NotificationManager {
    private permissionPromise: Promise<PermissionState> | null = null;
    private config: Required<NotifierConfig>;
    private initialized = false;
+   private permissionDeniedAlertShown = false; // Track if permission denied alert was shown
 
    constructor() {
       // Default configuration
@@ -22,6 +28,7 @@ class NotificationManager {
          useAlertAsFallback: true,
          alertSound: "", // will use default web audio API sound
          showOnSourceTab: false, // default: don't show when user is on current tab
+         permissionDeniedMessage: DEFAULT_PERMISSION_DENIED_MESSAGE,
          icons: { ...DEFAULT_ICONS },
       };
    }
@@ -32,6 +39,9 @@ class NotificationManager {
             useAlertAsFallback: config.useAlertAsFallback ?? true,
             alertSound: config.alertSound ?? "",
             showOnSourceTab: config.showOnSourceTab ?? false,
+            permissionDeniedMessage:
+               config.permissionDeniedMessage ??
+               DEFAULT_PERMISSION_DENIED_MESSAGE,
             icons: {
                ...DEFAULT_ICONS,
                ...config.icons,
@@ -116,7 +126,7 @@ class NotificationManager {
          });
       } catch (error) {
          // Fallback: try to play system beep (may not work in all browsers)
-         console.warn("Could not play beep sound:", error);
+         console.warn("Could not play beep sound", error);
          try {
             // Some browsers support this
             (window as any).speechSynthesis?.speak(
@@ -128,7 +138,11 @@ class NotificationManager {
       }
    }
 
-   private showAlertFallback(title: string, options: NotificationOptions) {
+   private showAlertFallback(
+      title: string,
+      options: NotificationOptions,
+      type: NotificationType = "message"
+   ) {
       // Only show alert if configured to use alert as fallback
       if (!this.config.useAlertAsFallback) {
          return;
@@ -139,8 +153,14 @@ class NotificationManager {
          this.playBeepSound();
       }
 
+      // Get appropriate icon for notification type
+      const icon = FALLBACK_ALERT_ICONS[type];
+      const titleWithIcon = `${icon} ${title}`;
+
       // Create alert message
-      const message = options.body ? `${title}\n\n${options.body}` : title;
+      const message = options.body
+         ? `${titleWithIcon}\n\n${options.body}`
+         : titleWithIcon;
       alert(`${message}`);
    }
 
@@ -156,8 +176,12 @@ class NotificationManager {
          return "granted";
       }
 
-      // If permission denied, return
+      // If permission denied, show alert once and return
       if (Notification.permission === "denied") {
+         if (!this.permissionDeniedAlertShown) {
+            this.permissionDeniedAlertShown = true;
+            alert(this.config.permissionDeniedMessage);
+         }
          return "denied";
       }
 
@@ -171,6 +195,12 @@ class NotificationManager {
 
          const permission = await this.permissionPromise;
 
+         // Show alert if permission was denied and alert hasn't been shown yet
+         if (permission === "denied" && !this.permissionDeniedAlertShown) {
+            this.permissionDeniedAlertShown = true;
+            alert(this.config.permissionDeniedMessage);
+         }
+
          return permission;
       }
 
@@ -180,7 +210,8 @@ class NotificationManager {
    async triggerNotification(
       title: string,
       options: NotificationOptions = {},
-      icon?: string
+      icon?: string,
+      type: NotificationType = "message"
    ): Promise<Notification | null> {
       // Ensure notifier is initialized
       if (!this.initialized) {
@@ -206,7 +237,7 @@ class NotificationManager {
             console.warn("Notification permission not granted");
 
             // Show alert fallback when permission is denied
-            this.showAlertFallback(title, options);
+            this.showAlertFallback(title, options, type);
 
             return null;
          }
@@ -281,7 +312,8 @@ class NotificationManager {
       return this.triggerNotification(
          title,
          options,
-         this.config.icons.success
+         this.config.icons.success,
+         "success"
       );
    }
 
@@ -289,14 +321,24 @@ class NotificationManager {
       title: string,
       options: NotificationOptions = {}
    ): Promise<Notification | null> {
-      return this.triggerNotification(title, options, this.config.icons.error);
+      return this.triggerNotification(
+         title,
+         options,
+         this.config.icons.error,
+         "error"
+      );
    }
 
    async info(
       title: string,
       options: NotificationOptions = {}
    ): Promise<Notification | null> {
-      return this.triggerNotification(title, options, this.config.icons.info);
+      return this.triggerNotification(
+         title,
+         options,
+         this.config.icons.info,
+         "info"
+      );
    }
 
    async warning(
@@ -306,7 +348,8 @@ class NotificationManager {
       return this.triggerNotification(
          title,
          options,
-         this.config.icons.warning
+         this.config.icons.warning,
+         "warning"
       );
    }
 
@@ -315,7 +358,7 @@ class NotificationManager {
       options: NotificationOptions = {}
    ): Promise<Notification | null> {
       // Use favicon for message notifications (no configured icon)
-      return this.triggerNotification(title, options);
+      return this.triggerNotification(title, options, undefined, "message");
    }
 
    // Get current permission status
@@ -336,6 +379,12 @@ class NotificationManager {
 const notificationManager = new NotificationManager();
 
 // Export the notifier object for configuration and management
+
+/**
+ * @example
+ * import { notifier } from 'notifier';
+ * notifier.init();
+ */
 export const notifier = {
    init: (config?: NotifierConfig) => notificationManager.init(config),
 };
