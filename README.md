@@ -4,6 +4,8 @@
 
 A lightweight, framework-agnostic browser notification utility with automatic permission handling, typed notification methods, de-duplication and smart fallbacks.
 
+**📋 [Live Demo](https://github.com/devkit-labs/Notifier/) | 📦 [NPM Package](https://www.npmjs.com/package/@devkit-labs/notifier)**
+
 ## Use Case
 
 -  **To notify the user about a time-consuming server or client-side task, such as image generation/editing or video generation/editing**
@@ -21,7 +23,7 @@ A lightweight, framework-agnostic browser notification utility with automatic pe
 -  **Deduplication** - By default only shows notifications when user is on other tabs, can be changed
 -  **Smart Tag Management** - Automatically generates unique tags to prevent notification collisions
 -  **Auto Favicon Detection** - Uses the page's favicon as notification icon when none provided
--  **Smart Fallbacks** - Shows alert with beep sound when notifications are blocked, with original notification message
+-  **Smart Fallbacks** - Plays beep sound on source tab when notifications are blocked
 -  **TypeScript Support** - Fully typed with comprehensive interfaces
 -  **Lightweight** - Minimal dependencies and small bundle size
 -  **Browser Compatibility** - Works across all modern browsers
@@ -34,13 +36,15 @@ npm install @devkit-labs/notifier
 
 ## Bare Minimum Setup
 
-Get started with just 3 lines of code:
-
 ```typescript
 import { notifier, notify } from "@devkit-labs/notifier";
 
 // Initialize once at app startup (important!)
-notifier.init();
+notifier.init({
+   onPermissionDeny: () => {
+      // show a toast or modal to ask for permission
+   },
+});
 
 // Use anywhere in your app after initialization
 notify.success("Hello World!");
@@ -50,7 +54,7 @@ That's it! The library will:
 
 -  ✅ Automatically request notification permission
 -  ✅ Use default icons and settings
--  ✅ Fall back to alerts if notifications are blocked
+-  ✅ Fall back to audio beep if notifications are blocked/denied
 -  ✅ Only show notifications when user is on other tabs (by default)
 
 ## Quick Start
@@ -67,13 +71,15 @@ import {
    isNotificationSupported,
 } from "@devkit-labs/notifier";
 
-// Configure the notifier with optional custom icons and settings, 
+// Configure the notifier with optional custom icons and settings,
 // Note : All fields are optional, Notifier comes with default icons and settings
 const notifierConfig = {
-   useAlertAsFallback: true, // true by default 
    alertSound: "/alert-sound.mp3",
-   showOnSourceTab : false // false by default
-   permissionDeniedMessage : "Please allow notifications permissions to get important updates" // default message : "Please allow notifications permissions for best experience"
+   showOnSourceTab: false, // false by default
+   onPermissionDeny: () => {
+      console.log("Notification permission denied");
+      // Handle permission denial (e.g., show a toast message)
+   },
    icons: {
       success: "/success-icon.png",
       error: "/error-icon.png",
@@ -141,9 +147,9 @@ Initialize the notifier with optional configuration. This should be called once 
 
 ```typescript
 interface NotifierConfig {
-   useAlertAsFallback?: boolean; // (default: true) Whether to show alert when in source tab when notifications are blocked/denied
-   alertSound?: string; // Custom alert sound URL (optional)
+   alertSound?: string; // Custom alert sound URL for audio fallback (optional)
    showOnSourceTab?: boolean; // (default : false) Whether to show the notifications when user is on source tab, recommended way would be to handle it using application UI(toast, modal etc)
+   onPermissionDeny?: () => void; // Callback function called when permission is denied
    icons?: {
       // icons path for various type of notifications, if not provided uses default icons for each
       success?: string;
@@ -155,8 +161,11 @@ interface NotifierConfig {
 
 // Example configuration
 notifier.init({
-   useAlertAsFallback: true,
    alertSound: "/sounds/notification.mp3",
+   onPermissionDeny: () => {
+      // Handle permission denial
+      console.log("User denied notification permission");
+   },
    icons: {
       success: "data:image/svg+xml,<svg>...</svg>",
       error: "/icons/error.png",
@@ -288,6 +297,12 @@ import { notifier, notify } from "@devkit-labs/notifier";
 
 // Initialize once
 notifier.init({
+   onPermissionDeny: () => {
+      // Show app-specific message when permission is denied
+      showToast(
+         "Notifications are disabled. Enable them for better experience."
+      );
+   },
    icons: {
       success: "/icons/success.svg",
       error: "/icons/error.svg",
@@ -345,11 +360,20 @@ notify.warning("Important Alert", {
 
 When notification permission is denied, the library automatically:
 
-1. Shows an alert dialog with the notification message
-2. Plays a beep sound (unless `silent: true`)
+1. Triggers the `onPermissionDeny` callback (if configured)
+2. Plays a beep sound on source tab when a notification is triggered (unless `silent: true`), respects silent option in in notify options.
 
 ```typescript
-// This will show an alert with beep if permission is denied
+// Configure permission denial handler
+notifier.init({
+   onPermissionDeny: () => {
+      // Show your app's notification (toast, modal, etc.)
+      showToast("Notifications disabled. Enable for alerts!");
+   },
+   alertSound: "/sounds/beep.mp3", // Custom beep sound (default : system sound)
+});
+
+// This will trigger onPermissionDeny callback if permission is denied
 notify.error("Critical Error", {
    body: "This is important information for the user.",
 });
@@ -357,7 +381,7 @@ notify.error("Critical Error", {
 // Silent fallback (no beep sound)
 notify.info("Silent Update", {
    body: "This won't make a sound even in fallback mode.",
-   silent: true, // No beep sound in alert fallback
+   silent: true, // No beep sound when permission denied
 });
 ```
 
@@ -371,13 +395,14 @@ notify.info("Silent Update", {
 ## Best Practices
 
 1. **Initialize once, use everywhere** - Call `notifier.init()` only once in your main entry file (index.js, main.js, app.js). Multiple initializations will overwrite previous configurations.
-2. **Use appropriate notification types** - Use `success` for completions, `error` for failures, etc.
-3. **Don't spam notifications** - Only show notifications for important events that users care about
-4. **Provide meaningful content** - Use clear titles and descriptive body text
-5. **Handle clicks appropriately** - Focus your app window or navigate to relevant content when notifications are clicked
-6. **Respect user preferences** - Check permission status and handle denied permissions gracefully
-7. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app, In such case you should show the notification using your Appliction UI
-8. **Test fallback behavior** - Ensure your app works well even when notifications are blocked
+2. **Handle denied permissions** - Configure `onPermissionDeny` callback to handle permission rejection gracefully with your app's UI (toast, modal, etc.)
+3. **Use appropriate notification types** - Use `success` for completions, `error` for failures, etc.
+4. **Don't spam notifications** - Only show notifications for important events that users care about
+5. **Provide meaningful content** - Use clear titles and descriptive body text
+6. **Handle clicks appropriately** - Focus your app window or navigate to relevant content when notifications are clicked
+7. **Respect user preferences** - Check permission status and handle denied permissions gracefully
+8. **Use `showOnSourceTab` wisely** - Consider whether users need to see notifications when they're already using your app. In such cases, show notifications using your application UI instead
+9. **Test fallback behavior** - Ensure your app works well even when notifications are blocked (audio beep + callback)
 
 ## TypeScript
 
@@ -393,7 +418,7 @@ import {
 } from "@devkit-labs/notifier";
 
 const config: NotifierConfig = {
-   useAlertAsFallback: true,
+   onPermissionDeny: () => console.log("Permission denied"),
    icons: {
       success: "/success.png",
    },
