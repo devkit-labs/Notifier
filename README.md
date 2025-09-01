@@ -4,7 +4,7 @@
 
 A lightweight, framework-agnostic browser notification utility with automatic permission handling, typed notification methods, de-duplication and smart fallbacks.
 
-**📋 [Live Demo](https://github.com/devkit-labs/Notifier/) | 📦 [NPM Package](https://www.npmjs.com/package/@devkit-labs/notifier)**
+**📋 [Live Demo](https://devkit-labs.github.io/Notifier/) | 📦 [NPM Package](https://www.npmjs.com/package/@devkit-labs/notifier)**
 
 ## Use Case
 
