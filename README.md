@@ -361,7 +361,7 @@ notify.warning("Important Alert", {
 When notification permission is denied, the library automatically:
 
 1. Triggers the `onPermissionDeny` callback (if configured)
-2. Plays a beep sound on source tab when a notification is triggered (unless `silent: true`), respects silent option in in notify options.
+2. Plays a beep sound on source tab when a notification is triggered (unless `silent: true`).
 
 ```typescript
 // Configure permission denial handler
