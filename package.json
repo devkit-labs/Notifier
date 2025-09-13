@@ -1,6 +1,6 @@
 {
    "name": "@devkit-labs/notifier",
-   "version": "0.1.4",
+   "version": "0.1.5",
    "description": "Lightweight browser notification utility with permission handling, clean API, fallbacks, and deduplication out of the box",
    "main": "dist/index.js",
    "module": "dist/index.mjs",
