@@ -1,14 +1,15 @@
+// tsup.config.ts
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-   entry: ["src/index.ts"],
-   format: ["cjs", "esm", "iife"],
-   dts: true,
-   splitting: false,
-   sourcemap: true,
-   clean: true,
-   minify: false,
-   target: "es2020",
-   outDir: "dist",
-   globalName: "NotifierLib",
+  entry: ["src/index.ts"],
+  format: ["esm", "cjs", "iife"], 
+  dts: true,
+  clean: true,
+  minify: true, // Add minification
+  treeshake: true, // Remove unused code
+  splitting: false, // Single bundle
+  sourcemap: false, // Remove source maps for production
+  globalName: "NotifierLib",
+  target: "es2020",
 });
